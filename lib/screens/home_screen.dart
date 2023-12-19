@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   static const twentyFiveMinutes = 25 * 60;
   int totalSeconds = twentyFiveMinutes;
+  int bpm = 120;
+  int beatsPerMeasure = 1;
+  int division = 4;
   bool isRunning = false;
   int totalPomodoros = 0;
   late Timer timer;
@@ -68,24 +72,79 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           Flexible(
-            flex: 1,
+            flex: 2,
             child: Container(
               alignment: Alignment.bottomCenter,
-              child: Text(
-                format(totalSeconds),
-                style: TextStyle(
-                  color: Theme.of(context).cardColor,
-                  fontSize: 89,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    child: Image.asset(
+                      'assets/cat-paw.png',
+                      width: 60,
+                      height: 60,
+                      color: Colors.pink,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Container(
+                    alignment: Alignment.bottomCenter,
+                    child: Image.asset(
+                      'assets/cat-paw.png',
+                      width: 60,
+                      height: 60,
+                      color: Colors.pink,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    child: Image.asset(
+                      'assets/cat-paw.png',
+                      width: 60,
+                      height: 60,
+                      color: Colors.pink,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Container(
+                    alignment: Alignment.bottomCenter,
+                    child: Image.asset(
+                      'assets/cat-paw.png',
+                      width: 60,
+                      height: 60,
+                      color: Colors.pink,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                ],
               ),
             ),
           ),
           Flexible(
-            flex: 3,
+            flex: 2,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Center(
+                  child: Text(
+                    format(totalSeconds),
+                    style: TextStyle(
+                      color: Theme.of(context).cardColor,
+                      fontSize: 89,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
                 Center(
                   child: IconButton(
                     iconSize: 120,
