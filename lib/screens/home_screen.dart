@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int division = 4;
   bool isRunning = false;
   int totalPomodoros = 0;
+  int selectedIndex = 0;
   late Timer timer;
 
   void onTick(Timer timer) {
@@ -67,6 +68,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Container> paws = List.generate(
+      division,
+      (index) => Container(
+        alignment: index % 2 == 0 ? Alignment.center : Alignment.bottomCenter,
+        margin: const EdgeInsets.all(8),
+        child: Visibility(
+          visible: index % 2 != 0,
+          maintainSize: true,
+          maintainSemantics: true,
+          maintainState: true,
+          maintainAnimation: true,
+          child: Image.asset(
+            'assets/cat-paw.png',
+            width: 50,
+            height: 50,
+            color: Colors.pink,
+          ),
+        ),
+      ),
+    );
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: Column(
@@ -78,54 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      'assets/cat-paw.png',
-                      width: 60,
-                      height: 60,
-                      color: Colors.pink,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    child: Image.asset(
-                      'assets/cat-paw.png',
-                      width: 60,
-                      height: 60,
-                      color: Colors.pink,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Container(
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      'assets/cat-paw.png',
-                      width: 60,
-                      height: 60,
-                      color: Colors.pink,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    child: Image.asset(
-                      'assets/cat-paw.png',
-                      width: 60,
-                      height: 60,
-                      color: Colors.pink,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
+                  ...paws,
                 ],
               ),
             ),
