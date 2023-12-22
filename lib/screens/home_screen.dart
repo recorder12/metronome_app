@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const twentyFiveMinutes = 25 * 60;
-  int totalSeconds = twentyFiveMinutes;
+  int totalSeconds = 0;
   int bpm = 120;
   int beatsPerMeasure = 1;
   int division = 4;
@@ -22,16 +22,17 @@ class _HomeScreenState extends State<HomeScreen> {
   late Timer timer;
 
   void onTick(Timer timer) {
-    if (totalSeconds == 0) {
+    if (totalSeconds == 3000) {
       timer.cancel();
       setState(() {
         totalPomodoros = totalPomodoros + 1;
         isRunning = false;
-        totalSeconds = twentyFiveMinutes;
+        totalSeconds = 0;
       });
     } else {
       setState(() {
-        totalSeconds = totalSeconds - 1;
+        totalSeconds = totalSeconds + 1;
+        selectedIndex = totalSeconds % division;
       });
     }
   }
@@ -68,21 +69,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double containerSize = MediaQuery.of(context).size.width / (division + 3);
+    double marginPercentage = 0.1; // Adjust this percentage as needed
+
     List<Container> paws = List.generate(
       division,
       (index) => Container(
         alignment: index % 2 == 0 ? Alignment.center : Alignment.bottomCenter,
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(containerSize * marginPercentage),
         child: Visibility(
-          visible: index % 2 != 0,
+          visible: index == selectedIndex,
           maintainSize: true,
           maintainSemantics: true,
           maintainState: true,
           maintainAnimation: true,
           child: Image.asset(
             'assets/cat-paw.png',
-            width: 50,
-            height: 50,
+            width: containerSize,
+            height: containerSize,
             color: Colors.pink,
           ),
         ),
