@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,9 +10,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const twentyFiveMinutes = 25 * 60;
+  String paw = 'cat';
   int totalSeconds = 0;
   int bpm = 120;
+  late int millisecondsPerBeat = getMillisecondsPerBeat(bpm);
   int beatsPerMeasure = 1;
   int division = 4;
   bool isRunning = false;
@@ -37,9 +37,37 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void onCatPawChangePressed() {
+    setState(() {
+      if (paw != 'cat') {
+        paw = 'cat';
+      }
+    });
+  }
+
+  void onDogPawChangePressed() {
+    setState(() {
+      if (paw != 'dog') {
+        paw = 'dog';
+      }
+    });
+  }
+
+  void onHorsePawChangePressed() {
+    setState(() {
+      if (paw != 'horse') {
+        paw = 'horse';
+      }
+    });
+  }
+
+  int getMillisecondsPerBeat(int bpm) {
+    return (60 * 1000) ~/ bpm;
+  }
+
   void onStartPressed() {
     timer = Timer.periodic(
-      const Duration(seconds: 1),
+      Duration(milliseconds: millisecondsPerBeat),
       onTick,
     );
     setState(() {
@@ -57,8 +85,34 @@ class _HomeScreenState extends State<HomeScreen> {
   void onResetPressed() {
     timer.cancel();
     setState(() {
-      totalSeconds = twentyFiveMinutes;
       isRunning = false;
+      selectedIndex = 0;
+    });
+  }
+
+  void onIncreaseBpmPressed() {
+    setState(() {
+      bpm = bpm + 1;
+      millisecondsPerBeat = getMillisecondsPerBeat(bpm);
+      timer.cancel();
+      timer = Timer.periodic(
+        Duration(milliseconds: millisecondsPerBeat),
+        onTick,
+      );
+    });
+  }
+
+  void onDecreaseBpmPressed() {
+    setState(() {
+      if (bpm > 5) {
+        bpm = bpm - 1;
+        millisecondsPerBeat = getMillisecondsPerBeat(bpm);
+        timer.cancel();
+        timer = Timer.periodic(
+          Duration(milliseconds: millisecondsPerBeat),
+          onTick,
+        );
+      }
     });
   }
 
@@ -69,8 +123,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double containerSize = MediaQuery.of(context).size.width / (division + 3);
-    double marginPercentage = 0.1; // Adjust this percentage as needed
+    double containerSize = MediaQuery.of(context).size.width / (division + 1);
+    double marginPercentage = 0.01; // Adjust this percentage as needed
 
     List<Container> paws = List.generate(
       division,
@@ -84,10 +138,14 @@ class _HomeScreenState extends State<HomeScreen> {
           maintainState: true,
           maintainAnimation: true,
           child: Image.asset(
-            'assets/cat-paw.png',
+            'assets/$paw-paw.png',
             width: containerSize,
             height: containerSize,
-            color: Colors.pink,
+            color: paw == 'cat'
+                ? Theme.of(context).colorScheme.primary
+                : paw == 'dog'
+                    ? Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).colorScheme.onSecondary,
           ),
         ),
       ),
@@ -98,7 +156,8 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           Flexible(
-            flex: 2,
+            // paws part
+            flex: 4,
             child: Container(
               alignment: Alignment.bottomCenter,
               child: Row(
@@ -110,23 +169,165 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Flexible(
-            flex: 2,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            flex: 3,
+            child: Row(
               children: [
-                Center(
-                  child: Text(
-                    format(totalSeconds),
-                    style: TextStyle(
-                      color: Theme.of(context).cardColor,
-                      fontSize: 89,
-                      fontWeight: FontWeight.w600,
-                    ),
+                Flexible(
+                  flex: 1,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Center(
+                        child: IconButton(
+                          onPressed: onCatPawChangePressed,
+                          icon: FaIcon(
+                            FontAwesomeIcons.cat,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          iconSize: 40,
+                        ),
+                      ),
+                      Center(
+                        child: IconButton(
+                          onPressed: onDogPawChangePressed,
+                          icon: FaIcon(
+                            FontAwesomeIcons.dog,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                          iconSize: 40,
+                        ),
+                      ),
+                      Center(
+                        child: IconButton(
+                          onPressed: onHorsePawChangePressed,
+                          icon: FaIcon(
+                            FontAwesomeIcons.horse,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          ),
+                          iconSize: 40,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                Flexible(
+                  flex: 10,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Center(
+                              child: IconButton(
+                                iconSize: 80,
+                                color: Theme.of(context).cardColor,
+                                onPressed: onDecreaseBpmPressed,
+                                icon: const Icon(Icons.arrow_left_rounded),
+                              ),
+                            ),
+                            Text(
+                              bpm.toString(),
+                              style: Theme.of(context).textTheme.displaySmall,
+                            ),
+                            Text(
+                              '(BPM)',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            Center(
+                              child: IconButton(
+                                iconSize: 80,
+                                color: Theme.of(context).cardColor,
+                                onPressed: onIncreaseBpmPressed,
+                                icon: const Icon(Icons.arrow_right_rounded),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Center(
+                              child: IconButton(
+                                iconSize: 80,
+                                color: Theme.of(context).cardColor,
+                                onPressed: onDecreaseBpmPressed,
+                                icon: const Icon(Icons.arrow_left_rounded),
+                              ),
+                            ),
+                            Text(
+                              bpm.toString(),
+                              style: Theme.of(context).textTheme.displaySmall,
+                            ),
+                            Text(
+                              '(BPM)',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            Center(
+                              child: IconButton(
+                                iconSize: 80,
+                                color: Theme.of(context).cardColor,
+                                onPressed: onIncreaseBpmPressed,
+                                icon: const Icon(Icons.arrow_right_rounded),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Center(
+                              child: IconButton(
+                                iconSize: 80,
+                                color: Theme.of(context).cardColor,
+                                onPressed: onDecreaseBpmPressed,
+                                icon: const Icon(Icons.arrow_left_rounded),
+                              ),
+                            ),
+                            Text(
+                              bpm.toString(),
+                              style: Theme.of(context).textTheme.displaySmall,
+                            ),
+                            Text(
+                              '(BPM)',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            Center(
+                              child: IconButton(
+                                iconSize: 80,
+                                color: Theme.of(context).cardColor,
+                                onPressed: onIncreaseBpmPressed,
+                                icon: const Icon(Icons.arrow_right_rounded),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            // start button part
+            flex: 2,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
                 Center(
                   child: IconButton(
-                    iconSize: 120,
+                    iconSize: 80,
                     color: Theme.of(context).cardColor,
                     onPressed: isRunning ? onPausePressed : onStartPressed,
                     icon: Icon(isRunning
@@ -136,48 +337,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Center(
                   child: IconButton(
-                    iconSize: 60,
+                    iconSize: 80,
                     color: Theme.of(context).cardColor,
                     onPressed: onResetPressed,
                     icon: const Icon(Icons.restore_rounded),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Pomodoros',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                Theme.of(context).textTheme.displayLarge!.color,
-                          ),
-                        ),
-                        Text(
-                          '$totalPomodoros',
-                          style: TextStyle(
-                            fontSize: 58,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                Theme.of(context).textTheme.displayLarge!.color,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],
