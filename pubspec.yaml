@@ -66,9 +66,9 @@ flutter:
     - assets/cat-paw.png
     - assets/dog-paw.png
     - assets/horse-paw.png
-    # - assets/cat-1.wav
-    # - assets/cat-2.wav
-    # - assets/cat-3.wav
+    - assets/cat-1.wav
+    - assets/cat-2.wav
+    - assets/cat-3.wav
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

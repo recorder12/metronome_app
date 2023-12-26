@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -11,28 +12,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String paw = 'cat';
-  int totalSeconds = 0;
+  int totalTicks = 0;
   int bpm = 120;
-  late int millisecondsPerBeat = getMillisecondsPerBeat(bpm);
-  int beatsPerMeasure = 1;
-  int division = 4;
+  int beatsPerMeasure = 4;
   bool isRunning = false;
-  int totalPomodoros = 0;
   int selectedIndex = 0;
+  late int millisecondsPerBeat = getMillisecondsPerBeat(bpm);
   late Timer timer;
+  late AudioPlayer audioPlayer;
 
   void onTick(Timer timer) {
-    if (totalSeconds == 3000) {
+    if (totalTicks < 0) {
       timer.cancel();
       setState(() {
-        totalPomodoros = totalPomodoros + 1;
         isRunning = false;
-        totalSeconds = 0;
+        totalTicks = 0;
       });
     } else {
       setState(() {
-        totalSeconds = totalSeconds + 1;
-        selectedIndex = totalSeconds % division;
+        totalTicks = totalTicks + 1;
+        selectedIndex = totalTicks % beatsPerMeasure;
       });
     }
   }
@@ -62,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   int getMillisecondsPerBeat(int bpm) {
-    return (60 * 1000) ~/ bpm;
+    return ((60 * 1000) ~/ bpm);
   }
 
   void onStartPressed() {
@@ -90,10 +89,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void onIncreaseBpmPressed() {
+  void restState() {
     setState(() {
-      bpm = bpm + 1;
-      millisecondsPerBeat = getMillisecondsPerBeat(bpm);
+      selectedIndex = 0;
+      totalTicks = 0;
       timer.cancel();
       timer = Timer.periodic(
         Duration(milliseconds: millisecondsPerBeat),
@@ -102,16 +101,40 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void onIncreaseBpmPressed() {
+    setState(() {
+      if (bpm < 300) {
+        bpm = bpm + 1;
+        millisecondsPerBeat = getMillisecondsPerBeat(bpm);
+        restState();
+      }
+    });
+  }
+
   void onDecreaseBpmPressed() {
     setState(() {
       if (bpm > 5) {
         bpm = bpm - 1;
         millisecondsPerBeat = getMillisecondsPerBeat(bpm);
-        timer.cancel();
-        timer = Timer.periodic(
-          Duration(milliseconds: millisecondsPerBeat),
-          onTick,
-        );
+        restState();
+      }
+    });
+  }
+
+  void onIncreaseBeatPressed() {
+    setState(() {
+      if (beatsPerMeasure < 8) {
+        beatsPerMeasure = beatsPerMeasure + 1;
+        restState();
+      }
+    });
+  }
+
+  void onDecreaseBeatPressed() {
+    setState(() {
+      if (beatsPerMeasure > 2) {
+        beatsPerMeasure = beatsPerMeasure - 1;
+        restState();
       }
     });
   }
@@ -123,11 +146,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double containerSize = MediaQuery.of(context).size.width / (division + 1);
+    double containerSize =
+        MediaQuery.of(context).size.width / (beatsPerMeasure + 1);
     double marginPercentage = 0.01; // Adjust this percentage as needed
 
     List<Container> paws = List.generate(
-      division,
+      beatsPerMeasure,
       (index) => Container(
         alignment: index % 2 == 0 ? Alignment.center : Alignment.bottomCenter,
         margin: EdgeInsets.all(containerSize * marginPercentage),
@@ -169,13 +193,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Flexible(
-            flex: 3,
+            flex: 2,
             child: Row(
               children: [
                 Flexible(
                   flex: 1,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Center(
                         child: IconButton(
@@ -213,8 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Flexible(
                   flex: 10,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Center(
                         child: Row(
@@ -257,61 +281,61 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: IconButton(
                                 iconSize: 80,
                                 color: Theme.of(context).cardColor,
-                                onPressed: onDecreaseBpmPressed,
+                                onPressed: onDecreaseBeatPressed,
                                 icon: const Icon(Icons.arrow_left_rounded),
                               ),
                             ),
                             Text(
-                              bpm.toString(),
+                              beatsPerMeasure.toString(),
                               style: Theme.of(context).textTheme.displaySmall,
                             ),
                             Text(
-                              '(BPM)',
+                              '(Beat)',
                               style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             Center(
                               child: IconButton(
                                 iconSize: 80,
                                 color: Theme.of(context).cardColor,
-                                onPressed: onIncreaseBpmPressed,
+                                onPressed: onIncreaseBeatPressed,
                                 icon: const Icon(Icons.arrow_right_rounded),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Center(
-                              child: IconButton(
-                                iconSize: 80,
-                                color: Theme.of(context).cardColor,
-                                onPressed: onDecreaseBpmPressed,
-                                icon: const Icon(Icons.arrow_left_rounded),
-                              ),
-                            ),
-                            Text(
-                              bpm.toString(),
-                              style: Theme.of(context).textTheme.displaySmall,
-                            ),
-                            Text(
-                              '(BPM)',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                            Center(
-                              child: IconButton(
-                                iconSize: 80,
-                                color: Theme.of(context).cardColor,
-                                onPressed: onIncreaseBpmPressed,
-                                icon: const Icon(Icons.arrow_right_rounded),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Center(
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //     crossAxisAlignment: CrossAxisAlignment.center,
+                      //     children: [
+                      //       Center(
+                      //         child: IconButton(
+                      //           iconSize: 80,
+                      //           color: Theme.of(context).cardColor,
+                      //           onPressed: onDecreaseBpmPressed,
+                      //           icon: const Icon(Icons.arrow_left_rounded),
+                      //         ),
+                      //       ),
+                      //       Text(
+                      //         bpm.toString(),
+                      //         style: Theme.of(context).textTheme.displaySmall,
+                      //       ),
+                      //       Text(
+                      //         '(BPM)',
+                      //         style: Theme.of(context).textTheme.headlineSmall,
+                      //       ),
+                      //       Center(
+                      //         child: IconButton(
+                      //           iconSize: 80,
+                      //           color: Theme.of(context).cardColor,
+                      //           onPressed: onIncreaseBpmPressed,
+                      //           icon: const Icon(Icons.arrow_right_rounded),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
