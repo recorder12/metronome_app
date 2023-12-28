@@ -11,6 +11,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final maxBpm = 300;
+  final minBpm = 5;
+  final maxBeat = 8;
+  final minBeat = 2;
   String paw = 'cat';
   int totalTicks = 0;
   int bpm = 120;
@@ -19,9 +23,15 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
   late int millisecondsPerBeat = getMillisecondsPerBeat(bpm);
   late Timer timer;
-  late AudioPlayer audioPlayer;
+  late var players;
 
-  void onTick(Timer timer) {
+  @override
+  void initState() {
+    super.initState();
+    players = List.generate(maxBeat, (index) async => AudioPlayer());
+  }
+
+  void onTick(Timer timer) async {
     if (totalTicks < 0) {
       timer.cancel();
       setState(() {
@@ -29,10 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
         totalTicks = 0;
       });
     } else {
-      setState(() {
-        totalTicks = totalTicks + 1;
-        selectedIndex = totalTicks % beatsPerMeasure;
-      });
+      totalTicks = totalTicks + 1;
+      selectedIndex = totalTicks % beatsPerMeasure;
+      setState(() {});
+      var player = await players[selectedIndex];
+      await player.resume();
     }
   }
 
@@ -40,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       if (paw != 'cat') {
         paw = 'cat';
+        onResetPressed();
       }
     });
   }
@@ -48,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       if (paw != 'dog') {
         paw = 'dog';
+        onResetPressed();
       }
     });
   }
@@ -56,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       if (paw != 'horse') {
         paw = 'horse';
+        onResetPressed();
       }
     });
   }
@@ -64,13 +78,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return ((60 * 1000) ~/ bpm);
   }
 
-  void onStartPressed() {
-    timer = Timer.periodic(
-      Duration(milliseconds: millisecondsPerBeat),
-      onTick,
-    );
+  void onStartPressed() async {
+    for (var i = 0; i < maxBeat; i++) {
+      var player = await players[i];
+      await player.setSource(AssetSource('/$paw-1.wav'));
+    }
+
+    var player = await players[selectedIndex];
+    await player.resume();
+
     setState(() {
       isRunning = true;
+      totalTicks = 0;
+      timer = Timer.periodic(
+        Duration(milliseconds: millisecondsPerBeat),
+        onTick,
+      );
     });
   }
 
@@ -86,10 +109,11 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       isRunning = false;
       selectedIndex = 0;
+      totalTicks = 0;
     });
   }
 
-  void restState() {
+  void resetState() {
     setState(() {
       selectedIndex = 0;
       totalTicks = 0;
@@ -103,38 +127,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void onIncreaseBpmPressed() {
     setState(() {
-      if (bpm < 300) {
+      if (bpm < maxBpm) {
         bpm = bpm + 1;
         millisecondsPerBeat = getMillisecondsPerBeat(bpm);
-        restState();
+        resetState();
       }
     });
   }
 
   void onDecreaseBpmPressed() {
     setState(() {
-      if (bpm > 5) {
+      if (bpm > minBpm) {
         bpm = bpm - 1;
         millisecondsPerBeat = getMillisecondsPerBeat(bpm);
-        restState();
+        resetState();
       }
     });
   }
 
   void onIncreaseBeatPressed() {
-    setState(() {
-      if (beatsPerMeasure < 8) {
+    if (beatsPerMeasure < maxBeat) {
+      setState(() {
         beatsPerMeasure = beatsPerMeasure + 1;
-        restState();
-      }
-    });
+        resetState();
+      });
+    }
   }
 
   void onDecreaseBeatPressed() {
     setState(() {
-      if (beatsPerMeasure > 2) {
+      if (beatsPerMeasure > minBeat) {
         beatsPerMeasure = beatsPerMeasure - 1;
-        restState();
+        resetState();
       }
     });
   }
@@ -235,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Flexible(
-                  flex: 10,
+                  flex: 7,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -290,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: Theme.of(context).textTheme.displaySmall,
                             ),
                             Text(
-                              '(Beat)',
+                              '(Beats)',
                               style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             Center(
