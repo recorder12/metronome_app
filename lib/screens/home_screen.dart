@@ -51,7 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       if (paw != 'cat') {
         paw = 'cat';
-        onResetPressed();
+        if (isRunning) {
+          onResetPressed();
+        }
       }
     });
   }
@@ -60,16 +62,20 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       if (paw != 'dog') {
         paw = 'dog';
-        onResetPressed();
+        if (isRunning) {
+          onResetPressed();
+        }
       }
     });
   }
 
   void onHorsePawChangePressed() {
     setState(() {
-      if (paw != 'horse') {
-        paw = 'horse';
-        onResetPressed();
+      if (paw != 'duck') {
+        paw = 'duck';
+        if (isRunning) {
+          onResetPressed();
+        }
       }
     });
   }
@@ -83,6 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
       var player = await players[i];
       await player.setSource(AssetSource('/$paw-1.wav'));
     }
+
+    await Future.delayed(Duration(milliseconds: millisecondsPerBeat));
 
     var player = await players[selectedIndex];
     await player.resume();
@@ -249,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: IconButton(
                           onPressed: onHorsePawChangePressed,
                           icon: FaIcon(
-                            FontAwesomeIcons.horse,
+                            FontAwesomeIcons.kiwiBird,
                             color: Theme.of(context).colorScheme.onSecondary,
                           ),
                           iconSize: 40,
