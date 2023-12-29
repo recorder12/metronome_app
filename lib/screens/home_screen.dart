@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final minBeat = 2;
   String paw = 'cat';
   int totalTicks = 0;
-  int bpm = 120;
+  int bpm = 60;
   int beatsPerMeasure = 4;
   bool isRunning = false;
   int selectedIndex = 0;
@@ -138,7 +138,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (bpm < maxBpm) {
         bpm = bpm + 1;
         millisecondsPerBeat = getMillisecondsPerBeat(bpm);
-        resetState();
+        if (isRunning) {
+          resetState();
+        }
       }
     });
   }
@@ -148,7 +150,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (bpm > minBpm) {
         bpm = bpm - 1;
         millisecondsPerBeat = getMillisecondsPerBeat(bpm);
-        resetState();
+        if (isRunning) {
+          resetState();
+        }
       }
     });
   }
