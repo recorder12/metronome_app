@@ -1,16 +1,40 @@
-# metronome_app
+# 🐾 Metronome App for Young Musicians
 
-A new Flutter project.
+This is a playful metronome app designed specifically for **young musicians**. Instead of traditional click sounds, this app uses **animal sounds** and animated **animal footprints** to help children practice rhythm in a more engaging and intuitive way.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🎯 Key Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🎵 **Adjustable Rhythm, Tempo, and Accent**
+  - Users can control standard metronome settings to match their musical needs.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 🐶🐱🦆 **Animal Sound Options**
+  - Choose from dog, cat, or duck sounds to replace the traditional metronome click.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 🐾 **Visual Feedback**
+  - Animated animal footprints appear on screen in sync with the beat, helping with visual timing.
+
+- 🎓 **Child-Friendly UI**
+  - Bright, intuitive interface tailored for younger users or music educators working with children.
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework**: [Flutter](https://flutter.dev/)
+- **Languages**: Dart
+- **Platforms**: iOS & Android
+
+---
+
+## 🚀 Getting Started (Development)
+
+To run the app locally:
+
+```bash
+# Install dependencies
+flutter pub get
+
+# Run on connected device or simulator
+flutter run
